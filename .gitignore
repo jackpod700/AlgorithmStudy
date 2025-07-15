@@ -4,4 +4,7 @@
 .idea
 *.class
 *.iml
+*.exe
+*.o
+
 answer
