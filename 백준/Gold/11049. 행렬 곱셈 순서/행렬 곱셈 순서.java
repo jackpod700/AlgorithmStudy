@@ -2,50 +2,42 @@ import java.util.*;
 import java.io.*;
 
 public class Main {
-	static int n;
-	static int[][] matrices;
-	static int[] calc;
-	public static void main(String[] args) throws IOException{
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		n=Integer.parseInt(br.readLine());
-		matrices = new int[n*(n+1)/2][2];
-		calc = new int[n*(n+1)/2];
-		StringTokenizer st;
-		for(int i=0;i<n;i++) {
-			st = new StringTokenizer(br.readLine());
-			matrices[i][0]=Integer.parseInt(st.nextToken());
-			matrices[i][1]=Integer.parseInt(st.nextToken());
-		}
-		System.out.println(dp(0,1));
-	}
-	private static int dp(int i, int depth) {
-		// TODO Auto-generated method stub
-		int curIndex = getIndex(i,depth);
-		
-		if(depth==n) return 0;
-		if(calc[curIndex]!=0)return calc[curIndex];
-		int min=Integer.MAX_VALUE;
-		for(int j=0;j<n-depth;j++) {
-			int _1MatrixDepth = n-j;
-			int _2MatrixDepth = depth+j+1;
-			int _1MatrixCalcIndex = i;
-			int _2MatrixCalcIndex = i+j+1;
-			int _1MatrixIndex = getIndex(_1MatrixCalcIndex,_1MatrixDepth);
-			int _2MatrixIndex = getIndex(_2MatrixCalcIndex,_2MatrixDepth);
-			
-			int calcResult = dp(_1MatrixCalcIndex,_1MatrixDepth)+dp(_2MatrixCalcIndex,_2MatrixDepth);
-			calcResult+=matrices[_1MatrixIndex][0]* matrices[_1MatrixIndex][1]*matrices[_2MatrixIndex][1];
-			if(min>calcResult) {
-				min=calcResult;
-				matrices[curIndex][0]=matrices[_1MatrixIndex][0];
-				matrices[curIndex][1]=matrices[_2MatrixIndex][1];
-			}
-		}
-        calc[curIndex]=min;
-		return min;
-	}
-	static int getIndex(int index,int depth) {
-		int baseIndex = (n*(n+1)/2)-(depth*(depth+1)/2);
-		return baseIndex+index;
-	}
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        int n = Integer.parseInt(br.readLine());
+        
+        int[][] data = new int[n][2];
+        StringTokenizer st;
+        for(int i = 0; i < n; i++) {
+            st = new StringTokenizer(br.readLine());
+            data[i][0] = Integer.parseInt(st.nextToken()); // 행 (r)
+            data[i][1] = Integer.parseInt(st.nextToken()); // 열 (c)
+        }
+        
+        // dp[i][j]: i번째 행렬부터 j번째 행렬까지 곱했을 때의 최소 연산 횟수
+        int[][] dp = new int[n][n];
+
+        // term: 구간의 길이 (1이면 두 행렬 곱셈, 2면 세 행렬 곱셈...)
+        for(int term = 1; term < n; term++) {
+            for(int i = 0; i < n - term; i++) { // i: 시작 행렬 인덱스
+                int j = i + term;               // j: 끝 행렬 인덱스
+                
+                dp[i][j] = Integer.MAX_VALUE;
+                
+                // k: 분할 지점 (i ~ k) * (k+1 ~ j)
+                for(int k = i; k < j; k++) {
+                    // 비용 = 왼쪽구간비용 + 오른쪽구간비용 + 합칠때비용
+                    // 합칠때비용 = (i의 행) * (k의 열) * (j의 열)
+                    // 주의: data[k][1] (k의 열) == data[k+1][0] (k+1의 행)
+                    int cost = dp[i][k] + dp[k+1][j] + (data[i][0] * data[k][1] * data[j][1]);
+                    
+                    if(cost < dp[i][j]) {
+                        dp[i][j] = cost;
+                    }
+                }
+            }
+        }
+        
+        System.out.println(dp[0][n-1]);
+    }
 }
