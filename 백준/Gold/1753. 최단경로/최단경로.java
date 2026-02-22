@@ -6,10 +6,9 @@ public class Main {
 	static int[] to,w,next,head;
 	static long[] dist;
 	public static void main(String[] args) throws IOException{
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		StringTokenizer st = new StringTokenizer(br.readLine());
-		V=Integer.parseInt(st.nextToken());
-		E=Integer.parseInt(st.nextToken());
+		FastScanner fs = new FastScanner(System.in);
+		V=fs.nextInt();
+		E=fs.nextInt();
 		head = new int[V+1];
 		dist = new long[V+1];
 		to = new int[E];
@@ -18,12 +17,11 @@ public class Main {
 		final int INF=1_000_000;
 		Arrays.fill(dist,INF);
 		Arrays.fill(head, -1);
-		start = Integer.parseInt(br.readLine());
+		start = fs.nextInt();
 		for(int i=0;i<E;i++) {
-			st = new StringTokenizer(br.readLine());
-			int u=Integer.parseInt(st.nextToken());
-			int v=Integer.parseInt(st.nextToken());
-			int ww=Integer.parseInt(st.nextToken());
+			int u=fs.nextInt();
+			int v=fs.nextInt();
+			int ww=fs.nextInt();
 			to[edgePtr]=v;
 			w[edgePtr]=ww;
 			next[edgePtr]=head[u];
@@ -53,4 +51,27 @@ public class Main {
 		}
 		System.out.print(sb);
 	}
+	
+    // ---- FastScanner (byte 단위) ----
+    static class FastScanner {
+        private final InputStream in;
+        private final byte[] buffer = new byte[1 << 16];
+        private int ptr = 0, len = 0;
+        FastScanner(InputStream is) { in = is; }
+        private int read() throws IOException {
+            if (ptr >= len) {
+                len = in.read(buffer);
+                ptr = 0;
+                if (len <= 0) return -1;
+            }
+            return buffer[ptr++];
+        }
+        int nextInt() throws IOException {
+            int c, s = 1, x = 0;
+            do c = read(); while (c <= 32);
+            if (c == '-') { s = -1; c = read(); }
+            while (c > 32) { x = x * 10 + (c - '0'); c = read(); }
+            return x * s;
+        }
+    }
 }
