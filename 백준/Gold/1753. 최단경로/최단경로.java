@@ -2,72 +2,55 @@ import java.util.*;
 import java.io.*;
 
 public class Main {
-	static int V,E,start;
-	static List<Edge>[] edges;
-	static Vertex[] vertexes;
-	static int[] dist;
+	static int V,E,start,edgePtr=0;
+	static int[] to,w,next,head;
+	static long[] dist;
 	public static void main(String[] args) throws IOException{
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		StringTokenizer st = new StringTokenizer(br.readLine());
 		V=Integer.parseInt(st.nextToken());
 		E=Integer.parseInt(st.nextToken());
-		vertexes = new Vertex[V+1];
-		for(int i=1;i<=V;i++) vertexes[i]=new Vertex(i);
-		dist = new int[V];
-		Arrays.fill(dist,Integer.MAX_VALUE);
+		head = new int[V+1];
+		dist = new long[V+1];
+		to = new int[E];
+		w = new int[E];
+		next = new int[E];
+		final int INF=1_000_000;
+		Arrays.fill(dist,INF);
+		Arrays.fill(head, -1);
 		start = Integer.parseInt(br.readLine());
 		for(int i=0;i<E;i++) {
 			st = new StringTokenizer(br.readLine());
 			int u=Integer.parseInt(st.nextToken());
 			int v=Integer.parseInt(st.nextToken());
-			int w=Integer.parseInt(st.nextToken());
-			vertexes[u].edges.add(new Edge(vertexes[v],w));
+			int ww=Integer.parseInt(st.nextToken());
+			to[edgePtr]=v;
+			w[edgePtr]=ww;
+			next[edgePtr]=head[u];
+			head[u]=edgePtr++;
 		}
-		vertexes[start].dist=0;
+		dist[start]=0;
 		
-		Queue<Vertex> queue = new PriorityQueue<>();
-		queue.offer(vertexes[start]);
+		Queue<Long> queue = new PriorityQueue<>();
+		queue.offer((long)start);
 		while(!queue.isEmpty()) {
-			Vertex curV = queue.poll();
-			if(curV.dist>vertexes[curV.index].dist) continue;
-			int edgeSize=curV.edges.size();
-			for(int i=0;i<edgeSize;i++) {
-				Edge e = curV.edges.get(i);
-				Vertex nextV = e.dest;
-				if(nextV.dist>curV.dist+e.w) {
-					nextV.dist=curV.dist+e.w;
-					queue.offer(nextV);
+			long curV = queue.poll();
+			int u=(int)curV;
+			int d=(int)(curV>>>32);
+			if(d!=dist[u]) continue;
+			for(int e=head[u];e!=-1;e=next[e]) {
+				int nextv=to[e];
+				if(dist[nextv]>dist[u]+w[e]) {
+					dist[nextv]=dist[u]+w[e];
+					queue.offer((dist[nextv]<<32)|nextv);
 				}
 			}
 		}
 		StringBuilder sb = new StringBuilder();
 		for(int i=1;i<=V;i++) {
-			Vertex v = vertexes[i];
-			if(v.dist==Integer.MAX_VALUE) sb.append("INF").append("\n");
-			else sb.append(v.dist).append("\n");
+			if(dist[i]==INF) sb.append("INF").append("\n");
+			else sb.append(dist[i]).append("\n");
 		}
 		System.out.print(sb);
-	}
-	
-	static class Vertex implements Comparable<Vertex>{
-		
-		int dist=Integer.MAX_VALUE,index;
-		List<Edge> edges = new ArrayList<>();
-		public Vertex(int index) {
-			this.index=index;
-		}
-		@Override
-		public int compareTo(Vertex o) {
-			return Integer.compare(this.dist, o.dist);
-		}
-	}
-	
-	static class Edge{
-		Vertex dest;
-		int w;
-		public Edge(Vertex dest,int w) {
-			this.dest=dest;
-			this.w=w;
-		}
 	}
 }
